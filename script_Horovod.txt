@@ -1,0 +1,25 @@
+CITY="brno8"
+DATADIR="/storage/${CITY}/home/$LOGNAME/"
+
+# set pip path for --user option if some libraries were installed there
+export PYTHONUSERBASE=$DATADIR.local
+# set PATH and PYTHONPATH variables
+export PATH=$PYTHONUSERBASE/bin:$PATH
+export PYTHONPATH=$PYTHONUSERBASE/lib/python3.6/site-packages:$PYTHONPATH
+
+
+module add tensorflow-1.13.1-gpu-python3
+module add opencv-3.4.5-py36-cuda10.1
+module add openmpi-3.1.2-gcc
+module add gcc-4.9.2
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/software/cuda/10.1/nccl_2.5.6-1+cuda10.1_x86_64/lib
+# HOROVOD_NCCL_HOME must be set otherwise during import error occures with libraries, if there is a problem then HOROVOD_CUDA_INCLUDE or HOROVOD_CUDA_LIB have to be set
+HOROVOD_NCCL_HOME=/software/cuda/10.1/nccl_2.5.6-1+cuda10.1_x86_64 HOROVOD_GPU_ALLREDUCE=NCCL HOROVOD_WITH_TENSORFLOW=1 HOROVOD_WITH_MPI=1 pip3 install --no-cache-dir --force-reinstall horovod --user
+
+module add tensorflow-1.13.1-gpu-python3
+module add openmpi-3.1.2-gcc
+# it is important to remove gcc-4.9.2 module because it interferes during including
+module rm gcc-4.9.2
+
+# for running horovod on 4CPUs and 4GPUs
+mpirun -np 4 -bind-to none -map-by slot -x NCCL_DEBUG=INFO -x LD_LIBRARY_PATH -x PATH -mca pml ob1 -mca btl ^openib python work_here_horovod.py > out.txt 2>err.txt
