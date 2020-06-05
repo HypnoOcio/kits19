@@ -22,4 +22,4 @@ module add openmpi-3.1.2-gcc
 module rm gcc-4.9.2
 
 # for running horovod on 4CPUs and 4GPUs
-mpirun -np 4 -bind-to none -map-by slot -x NCCL_DEBUG=INFO -x LD_LIBRARY_PATH -x PATH -mca pml ob1 -mca btl ^openib python work_here_horovod.py > out.txt 2>err.txt
+mpirun -np 4 -bind-to none -map-by slot -x NCCL_DEBUG=INFO -x LD_LIBRARY_PATH -x PATH -mca pml ob1 -mca btl ^openib python train_horovod.py > out.txt 2>err.txt
